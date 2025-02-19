@@ -153,7 +153,7 @@ curl --request POST \
 --data '{"description":"Learn Ansible"}'
 ```
 
-### At the end of the project, following topics are to be covered;
+### At the end of the project, following topics are covered;
 
 - Ansible playbook preparation without roles
 
@@ -173,31 +173,6 @@ curl --request POST \
 
 - Git & Github for Version Control System
 
-### At the end of the project, you will be able to;
-
-- Write Ansible playbook in different ways which are without Roles and with Roles
-
-- Apply web programming skills, importing packages within Nodejs and React Frameworks
-
-- Write Dockerfiles for different environments
-
-- Create containers which use React, Nodejs and PostgreSQL docker images 
-
-- Configure connection to the `PostgreSQL` database.
-
-- Connect backend server to database
-
-- Configure Nodejs Framework
-
-- Connect frontend server to backend server
-
-- Configure React Framework for development environment
-
-- Configure React Framework for production environment
-
-- Demonstrate bash scripting skills using `Ansible playbook` to setup web-page on EC2 Instance.
-
-- Apply git commands (push, pull, commit, add etc.) and Github as Version Control System.
 
 ## 📚 Resources
 
@@ -212,11 +187,5 @@ curl --request POST \
 - [Nodejs Documentation](https://nodejs.org/en/docs/)
 
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/9.6/static/index.html)
-
-## :memo: License ##
-
-This project is under license from Apache. For more details, see the [LICENSE](LICENSE) file.
-
-&#xa0;
 
 <a href="#top">⬆️ Back to top</a>
