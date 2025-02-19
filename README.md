@@ -38,79 +38,97 @@ The following tools were used in this project:
 
 Before starting :checkered_flag:, you need to have [Git](https://git-scm.com), [Node](https://nodejs.org/en/), [Docker](https://www.docker.com/), [Terraform](https://www.terraform.io/), [Ansible](https://www.ansible.com/), [React](https://reactjs.org/) and [AWS account](https://aws.amazon.com/).
 
-## 💼 Case Study Details ##
+# Web Application Deployment using Ansible
 
-- Your team has recently ended up a project that aims to serve as web page. You and your colleagues are assigned to work on this project. Developer team has done with code and DevOps team is going to deploy the app in production environment using ansible.
+## Overview
+This project was developed by Varun Kumar Shekar, Shreyas MM, Vani Basappa Goudar and Vinutha S, a full-stack development and DevOps team, to build and deploy a web application that collects user information. The application consists of a **PostgreSQL database**, a **Node.js backend**, and a **React frontend**, all running inside Docker containers on separate AWS EC2 instances.
 
-- Application is coded by Fullstack development team and given you as DevOps team. Web-page allows users to collect their infos. Registration data should be kept in separate PostgreSQL database located in one of EC2s. Nodejs framework controls backend and serves on port 5000, it is als connected to the PostgreSQL database on port 5432. React framework controls the frontend and it is also connected to the Nodejs server on port 5000. React server broadcasts web-page on port 80. 
+The deployment is automated using **Ansible**, ensuring a smooth and consistent setup.
 
-- The Web Application will be deployed using Nodejs and React framework.
+## Architecture
+- **PostgreSQL** (Runs on EC2 instance, listens on port **5432**)
+- **Node.js Backend** (Runs on EC2 instance, listens on port **5000**)
+- **React Frontend** (Runs on EC2 instance, broadcasts on port **80**)
+- **Control Node** (Handles deployment using Ansible)
+- **Dynamic Inventory** (AWS EC2 instances managed dynamically)
 
-- The Web Application should be accessible via web browser from anywhere on port 80.
+### Security Groups
+- **PostgreSQL EC2:** Accepts traffic from **Node.js EC2 (port 5432)** and SSH (port 22)
+- **Node.js EC2:** Accepts traffic from **anywhere (port 5000)** and SSH (port 22)
+- **React EC2:** Accepts traffic from **anywhere (port 80)** and SSH (port 22)
 
-- EC2's and their security groups should be created on AWS console.
+## Deployment Process
+Deployment is managed through Ansible and consists of the following steps:
 
-- Security groups should be attached to EC2's with at least permission rule.
+### Prerequisites
+1. AWS account with IAM access to create EC2 instances.
+2. Ansible installed on the **Control Node**.
+3. SSH access configured for EC2 instances.
+4. A **GitHub repository** containing application code.
+5. Ansible Vault for securing database credentials.
 
-- The rest of the process has to be controlled with control node which is connected SSH port.
+### Deployment Steps
+1. **Set Up the Control Node**
+   - Install Ansible.
+   - Configure `ansible.cfg` and dynamic inventory.
+   - Pull source code from GitHub.
 
-- Codes written by developers and should be pulled from repository into the control node and sent them to the EC2's from here with Ansible.
+2. **Deploy PostgreSQL**
+   - Transfer `Dockerfile` and `init.sql` to the PostgreSQL EC2 instance.
+   - Build and start the PostgreSQL container with environment variables secured using **Ansible Vault**.
+   - Create a Docker volume to persist database data.
 
-- Postgresql, Nodejs and React parts has to be placed in docker container. 
+3. **Deploy Node.js Backend**
+   - Update `.env` file with PostgreSQL connection details.
+   - Transfer the `server` folder to the Node.js EC2 instance.
+   - Build and start the Node.js container on **port 5000**.
 
-- Your project manager wants the DevOps team to launch an EC2 for each postgresql, nodejs and react docker container. In addition, he asks to write three different playbook groups for this project. 
-    - First one is to write playbook to control all process for each worker instance separately. 
-    - Second one is to control all process in one playbook without using roles.
-    - Third one is to control all process in one playbook using roles
+4. **Deploy React Frontend**
+   - Update `.env` file with the Node.js API endpoint.
+   - Transfer the `client` folder to the React EC2 instance.
+   - Build and start the React container on **port 80**.
 
-In the architecture, you can configure your architecture with these conditions,
+## Ansible Playbooks
+We have structured our Ansible playbooks in three different ways:
 
-  - All process has to be controlled into the `control Node`
+1. **Separate Playbooks for Each Service** (PostgreSQL, Node.js, React)
+2. **Single Playbook without Roles**
+3. **Single Playbook with Roles**
 
-  - Dynamic inventory has to be used for inventory file.
+### How to Run the Playbooks
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo.git
+   cd your-repo
+   ```
 
-  - Ansible config file has to be placed in control node.
-  
-  - Docker should be installed in all worker nodes using ansible.
+2. Run the playbooks:
+   - **Option 1:** Run individual playbooks for each service:
+     ```bash
+     ansible-playbook deploy_postgres.yml
+     ansible-playbook deploy_nodejs.yml
+     ansible-playbook deploy_react.yml
+     ```
+   - **Option 2:** Run a single playbook:
+     ```bash
+     ansible-playbook deploy_all.yml
+     ```
+   - **Option 3:** Run the playbook with roles:
+     ```bash
+     ansible-playbook site.yml
+     ```
 
-  - File should be pulled from Github Repo at the beginning.
+3. Verify the deployment by accessing the React frontend via the **public IP** of the React EC2 instance.
 
-  - For PostgreSQL worker node
+## Technologies Used
+- **Frontend:** React.js
+- **Backend:** Node.js (Express)
+- **Database:** PostgreSQL
+- **Containerization:** Docker
+- **Cloud Provider:** AWS (EC2, Security Groups)
+- **Automation:** Ansible (Playbooks, Dynamic Inventory, Ansible Vault)
 
-    - PostgreSQL files (`Dockerfile` and `init.sql`) should be sent into it from control node using ansible
 
-    - Docker image should be created for PostgreSQL container and init.sql file should be placed under necessary folder.
-
-    - Create PostgreSQL container. Do not forget to set password as environmental variable. This password has to be protected with ansible vault.
-
-    - Please make sure this instance's security group should be accept traffic from PostgreSQL's dedicated port from Nodejs EC2 and port 22 from anywhere.
-
-    - To keep database's data, volume has to be created with docker container and necessary file(s) should be kept under this file.
-
-  - For Nodejs worker node
-
-    - Please make sure to correct or create `.env` file under `server` folder based on PostgreSQL environmental variables
-    
-    - Nodejs's `server` folder should be sent into it from control node using ansible. This file will use for docker image. You don't need any extra file for creating Nodejs image.
-
-    - Docker image should be built for Nodejs container
-
-    - Create Nodejs container and publish it on port 5000
-
-    - Please make sure this instance's security group should be accept traffic from 5000, 22 dedicated port from anywhere.
-
-  - For React worker node
-
-    - Please make sure to correct `.env` file under `client` folder based on Nodejs environmental variables 
-    
-    - React's `client` folder should be sent into it from control node using ansible. This file will be used for docker image. You don't need any extra file for creating react image.
-
-    - Docker image should be created for React container
-
-    - Create React container and publish it on port 80
-
-    - Please make sure this instance's security group should be accept traffic from 80, and 80 dedicated port from anywhere.
-  
 ## Expected Outcome
 
 ![Todo Web Page](./todo_web.png)
